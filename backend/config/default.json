@@ -1,5 +1,6 @@
 {
   "serverPort" : 5000,
   "dbURL" : "mongodb+srv://first:qwezd777@first.yju45pw.mongodb.net/first?retryWrites=true&w=majority",
-  "secretKey": "secretKey"
+  "secretKey": "secretKey",
+  "filePath": "C:\\Users\\Tom\\WebstormProjects\\first\\backend\\files"
 }
