@@ -3,7 +3,7 @@ const config = require('config')
 const fs = require('fs')
 const User = require('../models/User')
 const File = require('../models/File')
-
+const Uuid = require('uuid')
 
 class FileController {
     async createDir(req, res) {
@@ -30,7 +30,22 @@ class FileController {
 
     async getFiles(req, res) {
         try {
-            const files = await File.find({user: req.user.id, parent: req.query.parent})
+            const {sort} = req.query
+            let files
+            switch (sort) {
+                case 'name':
+                    files = await File.find({user: req.user.id, parent: req.query.parent}).sort({name:1})
+                    break
+                case 'type':
+                    files = await File.find({user: req.user.id, parent: req.query.parent}).sort({type:1})
+                    break
+                case 'date':
+                    files = await File.find({user: req.user.id, parent: req.query.parent}).sort({date:1})
+                    break
+                default:
+                    files = await File.find({user: req.user.id, parent: req.query.parent})
+                    break;
+            }
             return res.json(files)
         } catch (e) {
             console.log(e)
@@ -90,7 +105,7 @@ class FileController {
     async downloadFile(req, res) {
         try {
             const file = await File.findOne({_id: req.query.id, user: req.user.id})
-            const path = config.get('filePath') + '\\' + req.user.id + '\\' + file.path + '\\' + file.name
+            const path = fileService.getPath(file)
             if (fs.existsSync(path)) {
                 return res.download(path, file.name)
             }
@@ -113,6 +128,46 @@ class FileController {
         } catch (e) {
             console.log(e)
             return res.status(400).json({message: 'Dir is not empty'})
+        }
+    }
+
+    async searchFile(req, res) {
+        try {
+            const searchName = req.query.search
+            let files = await File.find({user: req.user.id})
+            files = files.filter(file => file.name.includes(searchName))
+            return res.json(files)
+        } catch (e) {
+            console.log(e)
+            return res.status(400).json({message: 'Search error'})
+        }
+    }
+
+    async uploadAvatar(req, res) {
+        try {
+            const file = req.files.file
+            const user = await User.findById(req.user.id)
+            const avatarName = Uuid.v4() + ".jpg"
+            file.mv(config.get('staticPath') + "\\" + avatarName)
+            user.avatar = avatarName
+            await user.save()
+            return res.json(user)
+        } catch (e) {
+            console.log(e)
+            return res.status(400).json({message: 'Upload avatar error'})
+        }
+    }
+
+    async deleteAvatar(req, res) {
+        try {
+            const user = await User.findById(req.user.id)
+            fs.unlinkSync(config.get('staticPath') + "\\" + user.avatar)
+            user.avatar = null
+            await user.save()
+            return res.json(user)
+        } catch (e) {
+            console.log(e)
+            return res.status(400).json({message: 'Delete avatar error'})
         }
     }
 }

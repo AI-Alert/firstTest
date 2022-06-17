@@ -1,5 +1,9 @@
 const {model, Schema, ObjectId} = require('mongoose')
 
+/*
+Модель файла с именем, тип (папка (dir), либо mime-type файла), ссылка для доступа, размер, путь, дата добавления,
+пользователь (из модели USER), родитель (папка из данной модели), дочерний файл (файл или папка из данной модели)
+*/
 
 const File = new Schema({
     name: {type: String, required: true},

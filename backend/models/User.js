@@ -1,5 +1,9 @@
 const {Schema, model, ObjectId} = require("mongoose")
 
+/*
+Модель пользователя с email, паролем, выделяемое дисковое пространство,
+используемое пространство, аватар пользователя, связь с моделью файла
+ */
 
 const User = new Schema({
     email: {type: String, required: true, unique: true},

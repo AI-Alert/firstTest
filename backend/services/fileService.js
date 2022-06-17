@@ -32,9 +32,6 @@ class FileService {
     getPath(file) {
         return config.get('filePath') + '\\' + file.user + '\\' + file.path
     }
-
-
-
 }
 
 
